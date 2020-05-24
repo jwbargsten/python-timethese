@@ -20,12 +20,12 @@ def _timeit(n, args, repeat=1):
         "nruns": repeat,
         "run_times": run_times,
         "times": times,
-        "min_time": min(times),
+        "best_time": min(times),
         "mean": stat.mean(times),
         "median": stat.median(times),
         "stdev": stat.stdev(times) if len(times) >= 2 else 0,
         "rates": rates,
-        "max_rate": max(rates),
+        "best_rate": max(rates),
     }
 
 
@@ -59,23 +59,23 @@ def cmpthese(n=1, funcs=None, repeat=1):
     results = timethese(n=n, funcs=funcs, repeat=repeat)
 
     results = [{"name": name, **res} for name, res in results.items()]
-    results = sorted(results, key=lambda r: r["min_time"])
+    results = sorted(results, key=lambda r: r["best_time"])
     names = [r["name"] for r in results]
-    times = [r["min_time"] for r in results]
-    rates = [r["max_rate"] for r in results]
+    times = [r["best_time"] for r in results]
+    rates = [r["best_rate"] for r in results]
 
     rows = []
     for row_idx, row_res in enumerate(results):
         row = []
 
         # Column 1 = performance
-        row_rate = row_res["max_rate"]
+        row_rate = row_res["best_rate"]
 
         for col_idx, col_res in enumerate(results):
             if row_idx == col_idx:
                 out = 1
             else:
-                col_rate = col_res["max_rate"]
+                col_rate = col_res["best_rate"]
                 out = row_rate / col_rate - 1
 
             row.append(out)
