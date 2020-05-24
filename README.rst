@@ -61,7 +61,7 @@ Overview
 
 timeit for multiple functions with better reporting
 
-* Free software: BSD 2-Clause License
+* Free software: MIT License
 
 Installation
 ============
