@@ -1,6 +1,8 @@
 import time
-from timethese import timethese, cmpthese
 from pprint import pprint
+
+from timethese import cmpthese
+from timethese import timethese
 
 
 def test_timethese():
