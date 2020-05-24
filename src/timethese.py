@@ -1,4 +1,5 @@
 import timeit
+
 from more_itertools import quantify
 
 __version__ = "0.0.1"
@@ -42,6 +43,7 @@ def timethese(n=1, funcs=None, repeat=1):
         return {}
 
     return {name: _timeit(n, args, repeat=repeat) for name, args in funcs.items()}
+
 
 def cmpthese(n=1, funcs=None, repeat=1, as_table=False):
     results = timethese(n=n, funcs=funcs, repeat=repeat)
