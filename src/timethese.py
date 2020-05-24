@@ -1,3 +1,4 @@
+import statistics as stat
 import timeit
 
 from more_itertools import quantify
@@ -10,27 +11,36 @@ def _timeit(n, args, repeat=1):
         kwargs = args
     else:
         kwargs = {"stmt": args}
-    times = timeit.repeat(**kwargs, repeat=repeat, number=n)
-    return {"n": n, "nrepeats": repeat, "times": times, "min": min(times)}
+    run_times = timeit.repeat(**kwargs, repeat=repeat, number=n)
+    times = [dt / n for dt in run_times]
+    rates = [1 / (t + 0.000000000000001) for t in times]
+
+    return {
+        "n": n,
+        "nruns": repeat,
+        "run_times": run_times,
+        "times": times,
+        "min_time": min(times),
+        "mean": stat.mean(times),
+        "median": stat.median(times),
+        "stdev": stat.stdev(times) if len(times) >= 2 else 0,
+        "rates": rates,
+        "max_rate": max(rates),
+    }
 
 
-def _calc_rate(n, t):
-    return n / (t + 0.000000000000001)
-
-
-def _format_rate(rate, is_rate=True):
+def format_perf(perf, is_rate):
     # We assume that we'll never get a 0 rate.
-    r = rate if is_rate else 1 / rate
-    if r >= 100:
-        fmt = f"{r:0.0f}"
-    elif r >= 10:
-        fmt = f"{r:0.1f}"
-    elif r >= 1:
-        fmt = f"{r:0.2f}"
-    elif r >= 0.1:
-        fmt = f"{r:0.3f}"
+    if perf >= 100:
+        fmt = f"{perf:0.0f}"
+    elif perf >= 10:
+        fmt = f"{perf:0.1f}"
+    elif perf >= 1:
+        fmt = f"{perf:0.2f}"
+    elif perf >= 0.1:
+        fmt = f"{perf:0.3f}"
     else:
-        fmt = f"{r:0.2e}"
+        fmt = f"{perf:0.2e}"
 
     if is_rate:
         return fmt + "/s"
@@ -45,66 +55,62 @@ def timethese(n=1, funcs=None, repeat=1):
     return {name: _timeit(n, args, repeat=repeat) for name, args in funcs.items()}
 
 
-def cmpthese(n=1, funcs=None, repeat=1, as_table=False):
+def cmpthese(n=1, funcs=None, repeat=1):
     results = timethese(n=n, funcs=funcs, repeat=repeat)
 
-    results = [
-        {"name": name, "rate": _calc_rate(n, res["min"]), **res}
-        for name, res in results.items()
-    ]
-    results = sorted(results, key=lambda r: r["rate"])
-    cnt_gt_one = quantify(results, lambda r: r["rate"] > 1)
+    results = [{"name": name, **res} for name, res in results.items()]
+    results = sorted(results, key=lambda r: r["min_time"])
+    names = [r["name"] for r in results]
+    times = [r["min_time"] for r in results]
+    rates = [r["max_rate"] for r in results]
 
-    display_as_rate = True if results and cnt_gt_one / len(results) > 0.5 else False
-
-    top_row = [
-        "",
-        "Rate" if display_as_rate else "s/iter",
-        *[r["name"] for r in results],
-    ]
-
-    rows = [top_row]
-    col_widths = [len(x) for x in top_row]
-
-    for row_res in results:
+    rows = []
+    for row_idx, row_res in enumerate(results):
         row = []
 
-        # Column 0 = test name
-        row.append(row_res["name"])
-        if len(row_res["name"]) > col_widths[0]:
-            col_widths[0] = len(row_res["name"])
-
         # Column 1 = performance
-        row_rate = row_res["rate"]
+        row_rate = row_res["max_rate"]
 
-        rate_fmt = _format_rate(row_rate, display_as_rate)
-
-        # Only give a few decimal places before switching to sci. notation,
-        # since the results aren't usually that accurate anyway.
-        row.append(rate_fmt)
-        if len(rate_fmt) > col_widths[1]:
-            col_widths[1] = len(rate_fmt)
-
-        # Columns 2..N = performance ratios
         for col_idx, col_res in enumerate(results):
-            if row_res["name"] == col_res["name"]:
-                out = "."
+            if row_idx == col_idx:
+                out = 1
             else:
-                col_rate = col_res["rate"]
-                out = f"{100*row_rate/col_rate - 100:.0f}%"
+                col_rate = col_res["max_rate"]
+                out = row_rate / col_rate - 1
 
             row.append(out)
-            if len(out) > col_widths[col_idx + 2]:
-                col_widths[col_idx + 2] = len(out)
-
-            # A little weirdness to set the first column width properly
-            if len(col_res["name"]) > col_widths[col_idx + 2]:
-                col_widths[col_idx + 2] = len(col_res["name"])
-
         rows.append(row)
+    return {"data": rows, "names": names, "times": times, "rates": rates}
 
-    if as_table:
-        return rows
+
+def pprint_cmp(result, as_rate=None):
+    if as_rate is None:
+        # determine rate display automatically
+        big_rates_count = quantify(result["times"], lambda t: t < 1)
+        as_rate = result and big_rates_count / len(result["times"]) > 0.5
+
+    perf = result["rates"] if as_rate else result["times"]
+    perf = [format_perf(p, as_rate) for p in perf]
+
+    names = result["names"]
+    top_row = ["", "Rate" if as_rate else "s/iter", *names]
+    rows = [top_row] + [list(x) for x in zip(names, perf)]
+
+    col_widths = [len(x) for x in top_row]
+    col_widths[0] = max([len(n) for n in names])
+    col_widths[1] = max([len(rows[i][1]) for i in range(len(rows))])
+
+    for ridx, r in enumerate(result["data"]):
+        for cidx, c in enumerate(r):
+            if ridx == cidx:
+                val = "."
+            else:
+                val = f"{c*100:.0f}%"
+
+            rows[ridx + 1].append(val)
+
+            if len(val) > col_widths[cidx + 2]:
+                col_widths[cidx + 2] = len(val)
 
     def format_row(row, widths):
         return "  ".join(

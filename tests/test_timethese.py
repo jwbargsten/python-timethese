@@ -1,7 +1,7 @@
 import time
-from pprint import pprint
 
 from timethese import cmpthese
+from timethese import pprint_cmp
 from timethese import timethese
 
 
@@ -13,7 +13,7 @@ def test_timethese():
         time.sleep(0.6)
 
     res = timethese(2, {"aa": a, "bb": b})
-    pprint(res)
+    print(res)
 
 
 def test_cmpthese_iter():
@@ -25,7 +25,7 @@ def test_cmpthese_iter():
 
     res = cmpthese(2, {"aa": a, "bb": b}, repeat=2)
     print("")
-    print(res)
+    print(pprint_cmp(res))
 
 
 def test_cmpthese_rate():
@@ -40,4 +40,4 @@ def test_cmpthese_rate():
 
     res = cmpthese(2, {"aa": a, "bb": b, "cc": c}, repeat=2)
     print("")
-    print(res)
+    print(pprint_cmp(res))
