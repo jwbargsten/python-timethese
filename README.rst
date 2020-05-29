@@ -8,27 +8,13 @@ Overview
     :stub-columns: 1
 
     * - tests
-      - | |travis| |appveyor| |requires|
-        | |codecov|
+      - | |travis|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
-        | |commits-since|
 
 .. |travis| image:: https://api.travis-ci.org/jwbargsten/python-timethese.svg?branch=master
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/jwbargsten/python-timethese
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/jwbargsten/python-timethese?branch=master&svg=true
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/jwbargsten/python-timethese
-
-.. |requires| image:: https://requires.io/github/jwbargsten/python-timethese/requirements.svg?branch=master
-    :alt: Requirements Status
-    :target: https://requires.io/github/jwbargsten/python-timethese/requirements/?branch=master
-
-.. |codecov| image:: https://codecov.io/gh/jwbargsten/python-timethese/branch/master/graphs/badge.svg?branch=master
-    :alt: Coverage Status
-    :target: https://codecov.io/github/jwbargsten/python-timethese
 
 .. |version| image:: https://img.shields.io/pypi/v/timethese.svg
     :alt: PyPI Package latest release
@@ -45,11 +31,6 @@ Overview
 .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/timethese.svg
     :alt: Supported implementations
     :target: https://pypi.org/project/timethese
-
-.. |commits-since| image:: https://img.shields.io/github/commits-since/jwbargsten/python-timethese/v0.0.3.svg
-    :alt: Commits since latest release
-    :target: https://github.com/jwbargsten/python-timethese/compare/v0.0.3...master
-
 
 
 .. end-badges

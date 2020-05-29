@@ -16,7 +16,7 @@ def print_df_time(fn):
         value = fn(df, *args, **kwargs)
         end = time.perf_counter()
         elapsed = end - start
-        print(f"{fn.__name__} took={elapsed:.4f}s shape={value.shape}")
+        print(f"{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
         return value
 
     return fn_exec_time
@@ -29,7 +29,7 @@ def print_time(fn):
         value = fn(*args, **kwargs)
         end = time.perf_counter()
         elapsed = end - start
-        print(f"{fn.__name__} took={elapsed:.4f}s")
+        print("{0} took={1:.4f}s".format(fn.__name__, elapsed))
         return value
 
     return fn_exec_time
@@ -43,7 +43,7 @@ def log_time(logger, level=logging.INFO):
             value = fn(*args, **kwargs)
             end = time.perf_counter()
             elapsed = end - start
-            logger.log(level, f"{fn.__name__}: took={elapsed:.4f}s")
+            logger.log(level, "{0}: took={1:.4f}s".format(fn.__name__, elapsed))
             return value
 
         return fn_exec_time
@@ -59,7 +59,7 @@ def log_df_time(logger, level=logging.INFO):
             value = fn(df, *args, **kwargs)
             end = time.perf_counter()
             elapsed = end - start
-            logger.log(level, f"{fn.__name__} took={elapsed:.4f}s shape={value.shape}")
+            logger.log(level, f"{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
             return value
 
         return fn_exec_time
@@ -152,13 +152,10 @@ def timethese(n=1, funcs=None, repeat=3):
     if funcs is None:
         return None
     if isinstance(funcs, dict):
-        return {
-            name: {"name": name, **_timeit(n, args, repeat=repeat)} for name, args in funcs.items()
-        }
+        return {name: {"name": name, **_timeit(n, args, repeat=repeat)} for name, args in funcs.items()}
     elif isinstance(funcs, list):
         return [
-            {"name": _fmt_stmt(i, args), **_timeit(n, args, repeat=repeat)}
-            for i, args in enumerate(funcs)
+            {"name": _fmt_stmt(i, args), **_timeit(n, args, repeat=repeat)} for i, args in enumerate(funcs)
         ]
     else:
         raise TypeError("Unknown type of funcs parameter.")
