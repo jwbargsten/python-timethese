@@ -16,7 +16,7 @@ def print_df_time(fn):
         value = fn(df, *args, **kwargs)
         end = time.perf_counter()
         elapsed = end - start
-        print(f"{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
+        print("{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
         return value
 
     return fn_exec_time
@@ -59,7 +59,7 @@ def log_df_time(logger, level=logging.INFO):
             value = fn(df, *args, **kwargs)
             end = time.perf_counter()
             elapsed = end - start
-            logger.log(level, f"{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
+            logger.log(level, "{0} took={1:.4f}s shape={2}".format(fn.__name__, elapsed, value.shape))
             return value
 
         return fn_exec_time
@@ -93,15 +93,15 @@ def _timeit(n, args, repeat=1):
 def _format_perf(perf, is_rate):
     # We assume that we'll never get a 0 rate.
     if perf >= 100:
-        fmt = f"{perf:0.0f}"
+        fmt = "{:0.0f}".format(perf)
     elif perf >= 10:
-        fmt = f"{perf:0.1f}"
+        fmt = "{:0.1f}".format(perf)
     elif perf >= 1:
-        fmt = f"{perf:0.2f}"
+        fmt = "{:0.2f}".format(perf)
     elif perf >= 0.1:
-        fmt = f"{perf:0.3f}"
+        fmt = "{:0.3f}".format(perf)
     else:
-        fmt = f"{perf:0.2e}"
+        fmt = "{:0.2e}".format(perf)
 
     if is_rate:
         return fmt + "/s"
@@ -111,9 +111,9 @@ def _format_perf(perf, is_rate):
 
 def _fmt_stmt(i, stmt):
     if callable(stmt):
-        return "{}.{}".format(i, stmt.__name__)
+        return "{0}.{1}".format(i, stmt.__name__)
     else:
-        return "{}.{}".format(i, str(stmt)[:11])
+        return "{0}.{1}".format(i, str(stmt)[:11])
 
 
 def timethese(n=1, funcs=None, repeat=3):
