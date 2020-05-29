@@ -46,9 +46,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/timethese
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/jwbargsten/python-timethese/v0.0.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/jwbargsten/python-timethese/v0.0.3.svg
     :alt: Commits since latest release
-    :target: https://github.com/jwbargsten/python-timethese/compare/v0.0.1...master
+    :target: https://github.com/jwbargsten/python-timethese/compare/v0.0.3...master
 
 
 
