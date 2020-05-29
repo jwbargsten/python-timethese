@@ -7,17 +7,12 @@ Overview
 .. list-table::
     :stub-columns: 1
 
-    * - docs
-      - |docs|
     * - tests
       - | |travis| |appveyor| |requires|
         | |codecov|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
-.. |docs| image:: https://readthedocs.org/projects/python-timethese/badge/?style=flat
-    :target: https://readthedocs.org/projects/python-timethese
-    :alt: Documentation Status
 
 .. |travis| image:: https://api.travis-ci.org/jwbargsten/python-timethese.svg?branch=master
     :alt: Travis-CI Build Status
@@ -75,11 +70,57 @@ You can also install the in-development version with::
     pip install https://github.com/jwbargsten/python-timethese/archive/master.zip
 
 
-Documentation
-=============
+Usage
+=====
+
+To use TimeThese in a project::
+
+      from timethese import cmpthese, pprint_cmp, timethese
+
+      xs = range(10)
 
 
-https://python-timethese.readthedocs.io/
+      def map_hex():
+          list(map(hex, xs))
+
+
+      def list_compr_hex():
+          list([hex(x) for x in xs])
+
+
+      def map_lambda():
+          list(map(lambda x: x + 2, xs))
+
+
+      def map_lambda_fn():
+          fn = lambda x: x + 2
+          list(map(fn, xs))
+
+
+      def list_compr_nofn():
+          list([x + 2 for x in xs])
+
+
+      cmp_res_dict = cmpthese(
+          10000,
+          {
+              "map_hex": map_hex,
+              "list_compr_hex": list_compr_hex,
+              "map_lambda": map_lambda,
+              "map_lambda_fn": map_lambda_fn,
+              "list_compr_nofn": list_compr_nofn,
+          },
+          repeat=3,
+      )
+
+      print(pprint_cmp(cmp_res_dict))
+
+
+      cmp_res_list = cmpthese(
+          10000, [map_hex, list_compr_hex, map_lambda, map_lambda_fn, list_compr_nofn,], repeat=3,
+      )
+
+      print(pprint_cmp(cmp_res_list))
 
 
 Development

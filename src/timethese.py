@@ -1,9 +1,70 @@
+import functools
+import logging
 import statistics as stat
+import time
 import timeit
 
 from more_itertools import quantify
 
-__version__ = "0.0.1"
+__version__ = "0.0.3"
+
+
+def print_df_time(fn):
+    @functools.wraps(fn)
+    def fn_exec_time(df, *args, **kwargs):
+        start = time.perf_counter()
+        value = fn(df, *args, **kwargs)
+        end = time.perf_counter()
+        elapsed = end - start
+        print(f"{fn.__name__} took={elapsed:.4f}s shape={value.shape}")
+        return value
+
+    return fn_exec_time
+
+
+def print_time(fn):
+    @functools.wraps(fn)
+    def fn_exec_time(*args, **kwargs):
+        start = time.perf_counter()
+        value = fn(*args, **kwargs)
+        end = time.perf_counter()
+        elapsed = end - start
+        print(f"{fn.__name__} took={elapsed:.4f}s")
+        return value
+
+    return fn_exec_time
+
+
+def log_time(logger, level=logging.INFO):
+    def wrap(fn):
+        @functools.wraps(fn)
+        def fn_exec_time(*args, **kwargs):
+            start = time.perf_counter()
+            value = fn(*args, **kwargs)
+            end = time.perf_counter()
+            elapsed = end - start
+            logger.log(level, f"{fn.__name__}: took={elapsed:.4f}s")
+            return value
+
+        return fn_exec_time
+
+    return wrap
+
+
+def log_df_time(logger, level=logging.INFO):
+    def wrap(fn):
+        @functools.wraps(fn)
+        def fn_exec_time(df, *args, **kwargs):
+            start = time.perf_counter()
+            value = fn(df, *args, **kwargs)
+            end = time.perf_counter()
+            elapsed = end - start
+            logger.log(level, f"{fn.__name__} took={elapsed:.4f}s shape={value.shape}")
+            return value
+
+        return fn_exec_time
+
+    return wrap
 
 
 def _timeit(n, args, repeat=1):
@@ -91,10 +152,13 @@ def timethese(n=1, funcs=None, repeat=3):
     if funcs is None:
         return None
     if isinstance(funcs, dict):
-        return {name: {"name": name, **_timeit(n, args, repeat=repeat)} for name, args in funcs.items()}
+        return {
+            name: {"name": name, **_timeit(n, args, repeat=repeat)} for name, args in funcs.items()
+        }
     elif isinstance(funcs, list):
         return [
-            {"name": _fmt_stmt(i, args), **_timeit(n, args, repeat=repeat)} for i, args in enumerate(funcs)
+            {"name": _fmt_stmt(i, args), **_timeit(n, args, repeat=repeat)}
+            for i, args in enumerate(funcs)
         ]
     else:
         raise TypeError("Unknown type of funcs parameter.")
@@ -191,7 +255,7 @@ def pprint_cmp(result, as_rate=None):
             if ridx == cidx:
                 val = "."
             else:
-                val = f"{c*100:.0f}%"
+                val = "{:.0f}%".format(c * 100)
 
             rows[ridx + 1].append(val)
 
