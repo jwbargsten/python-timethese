@@ -35,7 +35,7 @@ Overview
 
 .. end-badges
 
-ired of writing the same code again and again when comparing the runtime of
+Tired of writing the same code again and again when comparing the runtime of
 more than one function? `timethese` helps with this type of micro-benchmarking.
 It basically runs timeit (or actually repeat) on multiple functions and spits
 out a report.
