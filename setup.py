@@ -76,6 +76,5 @@ setup(
         'pytest-runner',
         'sphinxcontrib-napoleon',
         'sphinx',
-        'pandas>= 0.17',
     ],
 )
