@@ -158,12 +158,10 @@ Timing
 `timethese` also has the function `timethese`, which is used by `cmpthese`
 internally. To get the timings directly, you can run::
 
-      from timethese import cmpthese, pprint_cmp, timethese
+      from timethese import timethese
 
       xs = range(10)
 
-
-      # 1. DEFINE FUNCTIONS
 
       def map_hex():
           list(map(hex, xs))
@@ -186,11 +184,7 @@ internally. To get the timings directly, you can run::
           list([x + 2 for x in xs])
 
 
-      # 2. FEED THE FUNCTIONS TO CMPTHESE
-
-      # AS DICT:
-
-      cmp_res_dict = cmpthese(
+      timings_dict = timethese(
           10000,
           {
               "map_hex": map_hex,
@@ -201,6 +195,25 @@ internally. To get the timings directly, you can run::
           },
           repeat=3,
       )
+
+      timings_list = timethese(
+          10000,
+          [ map_hex, list_compr_hex, map_lambda, map_lambda_fn, list_compr_nofn ],
+          repeat=3,
+      )
+
+      # if you want, you can create a pandas df from it
+
+      import pandas as pd
+
+      timings_df = pd.DataFrame(timings_dict.values())
+      print(timings_df)
+
+      # BEWARE: if you pass a list to timings, you have to skip the .values() call
+
+      timings_df = pd.DataFrame(timings_list)
+      print(timings_df)
+
 
 Timing functions with decorators
 --------------------------------

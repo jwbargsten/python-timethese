@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.0.7 (2020-05-31)
+------------------
+
+* Improved documentation and fixed typos
+
 0.0.6 (2020-05-31)
 ------------------
 
