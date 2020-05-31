@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.0.5 (2020-05-31)
+------------------
+
+* Added better documentations
+* Now using NumPy documentation format for function def doc
+* Fixed typos in pyproject.toml
+
 0.0.4 (2020-05-30)
 ------------------
 

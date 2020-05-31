@@ -9,7 +9,32 @@ from more_itertools import quantify
 __version__ = "0.0.3"
 
 
-def print_df_time(fn):
+def print_time_df(fn):
+    """Decorator to print run time when piping pandas DataFrames
+
+    In addition to the run time, it also prints the shape of the resulting dataframe.
+
+    Examples
+    --------
+    A common usage looks like this::
+
+        import time
+        import timethese
+        import numpy as np
+        import pandas as pd
+
+
+        @timethese.print_time_df
+        def sum_by_group(df):
+            time.sleep(1)  # introduce some artificial delay
+            return df.groupby("A").sum()
+
+
+        df = pd.DataFrame({"A": np.arange(100) % 2, "B": np.random.normal(size=100)})
+
+        res = df.pipe(sum_by_group)
+
+    """
     @functools.wraps(fn)
     def fn_exec_time(df, *args, **kwargs):
         start = time.perf_counter()
@@ -23,6 +48,22 @@ def print_df_time(fn):
 
 
 def print_time(fn):
+    """Decorator to print the run time of a function
+
+    Examples
+    --------
+    A common usage looks like this::
+
+        import time
+        import timethese
+
+        @timethese.print_time
+        def calculate_something():
+            time.sleep(1)
+
+        calculate_something()
+
+    """
     @functools.wraps(fn)
     def fn_exec_time(*args, **kwargs):
         start = time.perf_counter()
@@ -36,6 +77,33 @@ def print_time(fn):
 
 
 def log_time(logger, level=logging.INFO):
+    """Decorator to log the run time of a function
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        a logger to write the messages to
+    level : int
+        a logging level to use, e.g. ``logging.DEBUG``. The default level is ``logging.INFO``
+
+    Examples
+    --------
+    A common usage looks like this::
+
+        import time
+        import logging
+        import timethese
+
+        logging.basicConfig(level=logging.DEBUG)
+
+        logger = logging.getLogger(__name__)
+
+        @timethese.log_time(logger, level=logging.INFO)
+        def calculate_something():
+            time.sleep(1)
+
+        calculate_something()
+    """
     def wrap(fn):
         @functools.wraps(fn)
         def fn_exec_time(*args, **kwargs):
@@ -51,7 +119,42 @@ def log_time(logger, level=logging.INFO):
     return wrap
 
 
-def log_df_time(logger, level=logging.INFO):
+def log_time_df(logger, level=logging.INFO):
+    """Decorator to log run time when piping pandas DataFrames
+
+    In addition to the run time, it also logs the shape of the resulting dataframe.
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        a logger to write the messages to
+    level : int
+        a logging level to use, e.g. ``logging.INFO``
+
+    Examples
+    --------
+
+        import time
+        import logging
+        import timethese
+        import numpy as np
+        import pandas as pd
+
+        logging.basicConfig(level=logging.DEBUG)
+
+        logger = logging.getLogger(__name__)
+
+
+        @timethese.log_time_df(logger, logging.DEBUG)
+        def sum_by_group(df):
+            time.sleep(1)  # introduce some artificial delay
+            return df.groupby("A").sum()
+
+
+        df = pd.DataFrame({"A": np.arange(100) % 2, "B": np.random.normal(size=100)})
+
+        res = df.pipe(sum_by_group)
+    """
     def wrap(fn):
         @functools.wraps(fn)
         def fn_exec_time(df, *args, **kwargs):
@@ -121,33 +224,37 @@ def timethese(n=1, funcs=None, repeat=3):
 
     Parameters
     ----------
-    n : the number of times the function is executed
+    n
+        the number of times the function is executed
 
-    funcs : the statements/functions or arguments supplied to timeit (timeit is
+    funcs
+        the statements/functions or arguments supplied to timeit (timeit is
         used internally, the elements of funcs are mapped to the `stmt` parameter of
-        timeit). `funcs` can be a list `[stmt1, stmt2, ...]`, a dict
-        `{ "stmt1": stmt1, "stmt2": stmt2, ...}`. If you need advanced functionality,
+        timeit). `funcs` can be a list ``[stmt1, stmt2, ...]``, a dict
+        ``{ "stmt1": stmt1, "stmt2": stmt2, ...}``. If you need advanced functionality,
         you can also supply a dict which is used as kwargs for timeit instead of
-        the statement itself: `[{stmt:'...', setup:'...', timer: ... }, ...]`.
+        the statement itself: ``[{stmt:'...', setup:'...', timer: ... }, ...]``.
 
-    repeat : times to repeat the complete performance measurement. This can be
+    repeat
+        times to repeat the complete performance measurement. This can be
         useful to mitigate "noise" created by other programs. The minimum time
         is taken from the repeats.
 
     Returns
     -------
-    a dict with the run time results of each function/statement. Keys of the dict are:
+    dict
+        the run time results of each function/statement. Keys of the dict are:
 
-    n: the supplied parameter n
-    nruns: repeats
-    run_times time of each repeat
-    times: the run_times divided by n
-    best_time: min(times),
-    mean: stat.mean(times),
-    median: stat.median(times),
-    stdev: stat.stdev(times) if len(times) >= 2 else 0,
-    rates: rates = 1/time
-    best_rate: max(rates)
+        * *n* - number of loops per run/repeat
+        * *nruns* - number of runs/repeats
+        * *run_times* - time of each run (called `repeat` in timeit)
+        * *times* - ``[run_time/n for run_time in run_times]``
+        * *best_time* - ``min(times)``
+        * *mean* - ``stat.mean(times)``
+        * *median* - ``stat.median(times)``
+        * *stdev* - ``stat.stdev(times) if len(times) >= 2 else 0``
+        * *rates* - ``[1/time for time in times]``
+        * *best_rate* - ``max(rates)``
     """
     if funcs is None:
         return None
@@ -166,28 +273,32 @@ def cmpthese(n=1, funcs=None, repeat=3):
 
     Parameters
     ----------
-    n : the number of times the function is executed
+    n
+        the number of times the function is executed
 
-    funcs : the statements/functions or arguments supplied to timeit (timeit is
+    funcs
+        the statements/functions or arguments supplied to timeit (timeit is
         used internally, the elements of funcs are mapped to the `stmt` parameter of
-        timeit). `funcs` can be a list `[stmt1, stmt2, ...]`, a dict
-        `{ "stmt1": stmt1, "stmt2": stmt2, ...}`. If you need advanced functionality,
+        timeit). `funcs` can be a list ``[stmt1, stmt2, ...]``, a dict
+        ``{ "stmt1": stmt1, "stmt2": stmt2, ...}``. If you need advanced functionality,
         you can also supply a dict which is used as kwargs for timeit instead of
-        the statement itself: `[{stmt:'...', setup:'...', timer: ... }, ...]`.
+        the statement itself: ``[{stmt:'...', setup:'...', timer: ... }, ...]``.
 
-    repeat : times to repeat the complete performance measurement. This can be
+    repeat
+        times to repeat the complete performance measurement. This can be
         useful to mitigate "noise" created by other programs. The minimum time
         is taken from the repeats.
 
     Returns
     -------
-    the comparison results as dict. The dict contains following keys:
+    dict
+        the comparison results as dict. The dict contains following keys:
 
-    data: a matrix (list of lists) with the comparison results, a comparison
-        results of 1 indicates 100% faster, -.5 means 50% slower
-    names: list of column/row names (column names == row names)
-    times: the best time of each func
-    rates: the best rate of each func, rate = 1/time
+        * *data* - a matrix (list of lists) with the comparison results, a comparison
+          results of 1 indicates 100% faster, -.5 means 50% slower
+        * *names* - list of column/row names (column names == row names)
+        * *times* - the best time of each func
+        * *rates* - the best rate of each func, rate = 1/time
     """
     results = timethese(n=n, funcs=funcs, repeat=repeat)
     if isinstance(funcs, dict):
@@ -222,14 +333,17 @@ def pprint_cmp(result, as_rate=None):
 
     Parameters
     ----------
-    result: a result from timethese
-    as_rate: if None, the display format is determined automatically.
-        if True, a rate is shown as function performance (unit 1/s),
+    result
+        a result from timethese
+    as_rate
+        If None, the display format is determined automatically.
+        If True, a rate is shown as function performance (unit 1/s),
         if False, the time is shown (unit s)
 
     Returns
     -------
-    a string table with the results
+    dict
+        a string table with the results
     """
     if as_rate is None:
         # determine rate display automatically

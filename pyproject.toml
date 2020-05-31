@@ -1,6 +1,8 @@
 [metadata]
 name = "timethese"
-aAdded uthors = ["Joachim Bargsten <jw@bargsten.org>"]
+version = "0.0.5"
+description = ""
+authors = ["Joachim Bargsten <jw@bargsten.org>"]
 license = "MIT"
 
 [build-system]
