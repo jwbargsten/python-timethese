@@ -275,3 +275,8 @@ Note, to combine the coverage data from all the tox environments run:
       - ::
 
             PYTEST_ADDOPTS=--cov-append tox
+
+See also
+========
+
+The idea came from Perl's `Benchmark.pm <https://perldoc.perl.org/Benchmark.html>`_, which I used a lot in the Good Ol' Days.

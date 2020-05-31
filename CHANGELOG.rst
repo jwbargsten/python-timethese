@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.0.6 (2020-05-31)
+------------------
+
+* improved documentation
+* fixed setup.py install dependencies to again pass travis tests
+
 0.0.5 (2020-05-31)
 ------------------
 
