@@ -74,7 +74,5 @@ setup(
     },
     setup_requires=[
         'pytest-runner',
-        'sphinxcontrib-napoleon',
-        'sphinx',
     ],
 )
