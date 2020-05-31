@@ -131,9 +131,7 @@ What do you get if you run this?
 Depending on the runtime of the supplied functions, either rate (unit: 1/s) or
 the seconds per iteration (s/iter) are shown.
 
-For dict something like:
-.. code-block::
-
+For dict something like::
 
                             Rate  list_compr_nofn  map_hex  map_lambda  map_lambda_fn  list_compr_hex
       list_compr_nofn  1385057/s                .      43%         47%            48%             88%
@@ -142,8 +140,7 @@ For dict something like:
         map_lambda_fn   935508/s             -32%      -4%         -1%              .             27%
        list_compr_hex   738367/s             -47%     -24%        -21%           -21%               .
 
-For list something like:
-.. code-block::
+For list something like::
 
                               Rate  4.list_compr_nofn  0.map_hex  2.map_lambda  3.map_lambda_fn  1.list_compr_hex
       4.list_compr_nofn  1360009/s                  .        31%           42%              46%               78%
@@ -228,6 +225,30 @@ Useful when using ``df.pipe(...)``
 
 * ``timethese.log_time_df(logger, level=logging.INFO)``
 * ``timethese.print_time_df``
+
+E.g. to log execution times of pipe operations on pandas dataframes, you could write::
+
+     import time
+     import logging
+     import timethese
+     import numpy as np
+     import pandas as pd
+
+     logging.basicConfig(level=logging.DEBUG)
+
+     logger = logging.getLogger(__name__)
+
+
+     @timethese.log_time_df(logger, logging.DEBUG)
+     def sum_by_group(df):
+         time.sleep(1)  # introduce some artificial delay
+         return df.groupby("A").sum()
+
+
+     df = pd.DataFrame({"A": np.arange(100) % 2, "B": np.random.normal(size=100)})
+
+     res = df.pipe(sum_by_group)
+
 
 See the function documentation in the source code for better examples.
 

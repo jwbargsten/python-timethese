@@ -77,6 +77,5 @@ setup(
         'sphinxcontrib-napoleon',
         'sphinx',
         'pandas',
-        'numpy',
     ],
 )
